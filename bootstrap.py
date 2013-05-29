@@ -14,7 +14,7 @@ def download_jenkins_war(url, destination_directory=None):
             destination_directory = os.path.join(jenkins_home, "userContent", "jenkins-rc")
             print "Destination directory in JENKINS_HOME", destination_directory
             if not os.path.isdir(destination_directory):
-                print "Directory", destination_directory, "not found"
+                os.makedirs(destination_directory)
         else:
             print "Using default destination directory '.'"
             destination_directory = "."

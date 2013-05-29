@@ -15,10 +15,10 @@ changes, recent bug reports, or latest web browser interactions.
 Tasks
 -----
 
-- [ ] Create a bootstrap script which accepts the URL source for the
-      Jenkins WAR file as an argument, checks userContent for that WAR
-      file, and if it is not found, downloads it to the userContent
-      directory
+- Create a bootstrap script which accepts the URL source for the
+  Jenkins WAR file as an argument, checks userContent for that WAR
+  file, and if it is not found, downloads it to the userContent
+  directory
 
 Rationale
 ---------

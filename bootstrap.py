@@ -25,12 +25,12 @@ def download_jenkins_war(url, destination_directory=None):
     print "Content last modified:", url_last_modified[:6]
     url_file_name = os.path.join(url.split("/")[-2], url.split("/")[-1])
     local_file = os.path.join(destination_directory, url_file_name)
-    # print "Destination file name is", local_file
+    print "Destination file name is", local_file
     if os.path.isfile(local_file):
         file_last_modified = time.ctime(os.path.getmtime(local_file))
     else:
         file_last_modified = time.ctime(12 * 60 * 60) # Jan 1, 1970
-    # print "Local file last modified:", file_last_modified
+    print "Local file last modified:", file_last_modified
     if file_last_modified < url_last_modified:
         print "Downloading ", url, "to", local_file
         local_dir, file_name = os.path.split(local_file)

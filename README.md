@@ -34,6 +34,9 @@ include:
     - Web container (Winstone, Tomcat, WebSphere, etc.)
     - Web browser (IE 7, IE 8, IE 9, IE 10, Chrome, Firefox, Safari, etc.)
     - Locale
+    - Jenkins functionality
+    - Jenkins performance
+    - Jenkins localization
 - Many plugins to consider - 400+ and growing
 
 The testing is further complicated by the many different ways in which

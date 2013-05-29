@@ -28,7 +28,6 @@ def bootstrap(args):
     if args:
         download_url = args[0]
     download_jenkins_war(download_url, ".")
-    pass
 
 if __name__ == "__main__":
     bootstrap(sys.argv[1:])

@@ -1,5 +1,7 @@
 #! /usr/bin/python
 
+# Boostrap Jenkins acceptance test execution
+
 import os
 import sys
 import time

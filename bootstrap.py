@@ -39,11 +39,28 @@ def download_jenkins_war(url, destination_directory=None):
             os.makedirs(local_dir)
             open(local_file, "wb").write(response.read())
 
+def start_jenkins(war_file):
+    "Start Jenkins server, return Jenkins process ID and port number"
+    return 0, 0 # Process ID, port number of Jenkins server
+
+def confirm_jenkins_started(pid, port, timeout=None):
+    "Return True if Jenkins has been started"
+    return False
+
+def stop_jenkins(pid, port):
+    "Stop Jenkins server started previously as process ID pid on port"
+    pass
+
 def bootstrap(args):
     download_url = "http://mirrors.jenkins-ci.org/war-stable-rc/latest/jenkins.war"
     if args:
         download_url = args[0]
-    download_jenkins_war(download_url)
+    war_file = download_jenkins_war(download_url)
+    pid, port = start_jenkins(war_file)
+    result = confirm_jenkins_started(pid, port, timeout=120)
+    stop_jenkins(pid, port)
+    assert not result, "Jenkins started without an implementation"
+    # assert result, "Jenkins did not start"
 
 if __name__ == "__main__":
     bootstrap(sys.argv[1:])

@@ -3,7 +3,11 @@
 # Boostrap Jenkins acceptance test execution
 
 import os
+import socket
+import stat
+import subprocess
 import sys
+import tempfile
 import time
 import urllib2
 
@@ -38,29 +42,68 @@ def download_jenkins_war(url, destination_directory=None):
         if not os.path.isdir(local_dir):
             os.makedirs(local_dir)
             open(local_file, "wb").write(response.read())
+    return os.path.abspath(local_file)
 
 def start_jenkins(war_file):
-    "Start Jenkins server, return Jenkins process ID and port number"
-    return 0, 0 # Process ID, port number of Jenkins server
+    "Start Jenkins server, return Jenkins process, port number, and JENKINS_HOME directory"
+    jenkins_home = tempfile.mkdtemp()
+    jenkins_env = { "JENKINS_HOME" : jenkins_home }
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(('', 0))
+    jenkins_port = s.getsockname()[1]
+    s.close()
+    print "Port:", jenkins_port
+    jenkins_cmd = ["java", "-jar", war_file, "--httpPort=" + str(jenkins_port)]
+    p = subprocess.Popen(jenkins_cmd, env=jenkins_env)
+    return p, jenkins_port, jenkins_home # Process, port number, JENKINS_HOME of started Jenkins server
 
-def confirm_jenkins_started(pid, port, timeout=None):
+def confirm_jenkins_started(p, port, timeout=None):
     "Return True if Jenkins has been started"
     return False
 
-def stop_jenkins(pid, port):
-    "Stop Jenkins server started previously as process ID pid on port"
-    pass
+def rmrf(file_name):
+    try:
+        mode = os.lstat(file_name)[stat.ST_MODE]
+        if not stat.S_ISLNK(mode) and not (mode & stat.S_IWUSR):
+            os.chmod(file_name, stat.S_IWUSR)
+        if stat.S_ISDIR(mode):
+            for f in os.listdir(file_name):
+                rmrf(os.path.join(file_name, f))
+            os.rmdir(file_name)
+        else:
+            os.remove(file_name)
+    except OSError:
+        pass
+
+def test_rmrf():
+    tmp_dir = tempfile.mkdtemp()
+    assert os.path.isdir(tmp_dir), tmp_dir + " not a directory"
+    rmrf(tmp_dir)
+    assert not os.path.isdir(tmp_dir), tmp_dir + " is a directory after rmrf"
+
+def stop_jenkins(p, port, jenkins_home):
+    "Stop Jenkins server started previously as process p on port with jenkins_home directory"
+    time.sleep(15)
+    assert os.path.isdir(jenkins_home), "JENKINS_HOME " + jenkins_home + " missing at entry to stop"
+    p.terminate()
+    rmrf(jenkins_home)
+    assert not confirm_jenkins_started(p, port), "Failed to stop Jenkins"
+    assert not os.path.isdir(jenkins_home), "JENKINS_HOME " + jenkins_home + " still exists at exit from stop"
 
 def bootstrap(args):
     download_url = "http://mirrors.jenkins-ci.org/war-stable-rc/latest/jenkins.war"
     if args:
         download_url = args[0]
     war_file = download_jenkins_war(download_url)
-    pid, port = start_jenkins(war_file)
-    result = confirm_jenkins_started(pid, port, timeout=120)
-    stop_jenkins(pid, port)
+    p, port, jenkins_home = start_jenkins(war_file)
+    print "HOME:", jenkins_home
+    print "Port:", port
+    print "Process:", p
+    result = confirm_jenkins_started(p, port, timeout=120)
+    stop_jenkins(p, port, jenkins_home)
     assert not result, "Jenkins started without an implementation"
     # assert result, "Jenkins did not start"
 
 if __name__ == "__main__":
+    test_rmrf()
     bootstrap(sys.argv[1:])

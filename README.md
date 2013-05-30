@@ -19,6 +19,10 @@ Tasks
   Jenkins WAR file as an argument, checks userContent for that WAR
   file, and if it is not found, downloads it to the userContent
   directory
+- Create a test execution script to download jenkins.war from the
+  userContent on the central server and execute it on either the slave
+  or the master
+- Create a process killer which will reliably stop the Jenkins process
 
 Rationale
 ---------

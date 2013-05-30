@@ -11,11 +11,23 @@ import tempfile
 import time
 import urllib2
 
-def download_jenkins_war(url, destination_directory=None):
+if os.environ.has_key("JENKINS_HOME"):
+    jenkins_master_home = os.environ["JENKINS_HOME"]
+else:
+    jenkins_master_home = None
+
+if os.environ.has_key("NODE_NAME"):
+    jenkins_node_name = os.environ["NODE_NAME"]
+else:
+    jenkins_node_name = None
+
+print "Node name is ", jenkins_node_name
+
+def cache_jenkins_war(url, destination_directory=None):
+    "Cache jenkins.war in the master node userContent directory"
     if not destination_directory:
-        if os.environ.has_key("JENKINS_HOME"):
-            jenkins_home = os.environ["JENKINS_HOME"]
-            destination_directory = os.path.join(jenkins_home, "userContent", "jenkins-rc")
+        if jenkins_master_home:
+            destination_directory = os.path.join(jenkins_master_home, "userContent", "jenkins-rc")
             print "Destination directory in JENKINS_HOME", destination_directory
             if not os.path.isdir(destination_directory):
                 os.makedirs(destination_directory)
@@ -94,7 +106,7 @@ def bootstrap(args):
     download_url = "http://mirrors.jenkins-ci.org/war-stable-rc/latest/jenkins.war"
     if args:
         download_url = args[0]
-    war_file = download_jenkins_war(download_url)
+    war_file = cache_jenkins_war(download_url)
     p, port, jenkins_home = start_jenkins(war_file)
     print "HOME:", jenkins_home
     print "Port:", port
